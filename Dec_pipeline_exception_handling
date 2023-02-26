@@ -1,0 +1,101 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('Continous_Download')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git 'https://github.com/Shahrukhislam786/maven.git'
+                    }
+                    catch(Exception E1)
+                    {
+                        mail bcc: '', body: '''Jenkins is unable to download from remote github''', cc: '', from: '', replyTo: '', subject: 'Download Failed ', to: 'shahrukhislam79@gmail.com'
+                        exit()
+                    }
+                }
+                
+            }
+        }
+        stage('Continous_Build')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        sh 'mvn package'
+                    }
+                    catch(Exception E2)
+                    {
+                        mail bcc: '', body: '''Jenkins is unable to create an artifact from the code''', cc: '', from: '', replyTo: '', subject: 'Build Failed ', to: 'shahrukhislam79@gmail.com'
+                        exit()
+                    }
+                }
+            }
+        }
+        stage('Continous_Deployment')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        deploy adapters: [tomcat9(credentialsId: '1180d373-0a56-47b9-9a35-89fee99e58f2', path: '', url: 'http://172.31.49.160:8080')], contextPath: 'testapp', war: '**/*.war'
+                    }
+                    catch(Exception E3)
+                    {
+                        mail bcc: '', body: '''Jenkins is unable to Deploy to QA Server''', cc: '', from: '', replyTo: '', subject: 'Deployment Failed ', to: 'shahrukhislam79@gmail.com'
+                        exit()
+                    }
+                }
+            }
+        }
+        stage('Continous_Testing')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git 'https://github.com/Shahrukhislam786/FunctionalTesting.git'
+                        sh 'java -jar /var/lib/jenkins/workspace/DeclarativePipeline/testing.jar'
+                    }
+                    catch(Exception E4)
+                    {
+                        mail bcc: '', body: '''Selenium scripts are failing''', cc: '', from: '', replyTo: '', subject: 'Testing Failed ', to: 'shahrukhislam79@gmail.com'
+                        exit()
+                    }
+                }
+                
+            }
+        }
+        stage('Continous_Delivery')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        deploy adapters: [tomcat9(credentialsId: '1180d373-0a56-47b9-9a35-89fee99e58f2', path: '', url: 'http://172.31.62.249:8080')], contextPath: 'prodapp', war: '**/*.war'
+                    }
+                    catch(Exception E5)
+                    {
+                        mail bcc: '', body: '''Jenkins is unable to deliver on prodserver''', cc: '', from: '', replyTo: '', subject: 'Delivery Failed ', to: 'shahrukhislam79@gmail.com'
+                        exit()
+                    }
+                }
+            }
+        }
+        
+    }
+}

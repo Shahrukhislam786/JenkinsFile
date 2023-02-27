@@ -1,0 +1,25 @@
+@Library('mylibrary')_
+node('built-in')
+{
+    stage('Continous_Download')
+    {
+        cicd.newDownload('maven.git')
+    }
+    stage('Continous_Build')
+    {
+        cicd.newBuild()
+    }
+    stage('Continous_Deployment')
+    {
+        cicd.newDeployment("ScriptedPipelineWithSharedLibrary","172.31.49.160","testapp")
+    }
+    stage('Continous_Testing')
+    {
+        cicd.newDownload("FunctionalTesting.git")
+        cicd.runSelenium("ScriptedPipelineWithSharedLibrary")
+    }
+    stage('Continous_Delivery')
+    {
+        cicd.newDeployment("ScriptedPipelineWithSharedLibrary","172.31.62.249","prodapp")
+    }
+}

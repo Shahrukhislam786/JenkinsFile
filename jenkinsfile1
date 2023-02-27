@@ -16,7 +16,7 @@ node('built-in')
     stage('Continous_Testing')
     {
         cicd.newDownload("FunctionalTesting.git")
-        cicd.runSelenium("ScriptedPipelineWithSharedLibrary")
+        cicd.runSelenium("MultiBranchPipeline_master")
     }
     stage('Continous_Delivery')
     {

@@ -3,7 +3,7 @@ node('built-in')
 {
     stage('Continous_Download')
     {
-        cicd.newDownload('maven.git')
+        cicd.newDownload("maven.git")
     }
     stage('Continous_Build')
     {
